@@ -3,6 +3,9 @@ import os
 
 DEFAULT_MANIFESTS_PATH: str = "C:\\ProgramData\\Epic\\EpicGamesLauncher\\Data\\Manifests"
 
+def print_line_separator() -> None:
+    print('-' * 40)
+
 def assert_path_exists(path: str) -> None:
     if os.path.exists(path) == False:
         print("Error: Path does not exist!")
@@ -26,99 +29,117 @@ def main():
 
     # Get game data path ----------------------------------------------------
     
-    # game_data_path: str = input("Please enter path containing all games: ")
+    # game_data_path: str = input("Please enter parent folder path containing all games: ")
     # assert_path_exists(game_data_path)
+    # TODO - find default path for games
 
     # TODO - TEMP REMOVE LINE
     game_data_path = "E:\\Program Files\\Epic Games"
 
-    # Get game list ----------------------------------------------------------
+    # Get list of game folder paths ------------------------------------------
 
     game_path_list: list[str] = []
 
     for entry in os.scandir(game_data_path):
         game_path_list.append(entry.path)
 
-    # Get manifest list ------------------------------------------------------
+    # Get list of manifest file paths ----------------------------------------
 
-    manifest_filepath_list: list[str] = []
+    manifest_file_list: list[str] = []
 
     for entry in os.scandir(manifests_path):
         if entry.is_file():
-            manifest_filepath_list.append(entry.path)
+            manifest_file_list.append(entry.path)
 
     # Print results ----------------------------------------------------------
 
     print("Games Found: ", len(game_path_list))
-    print("Manifest Files Found: ", len(manifest_filepath_list))
-
-    # TODO - Need to check for config format version???
+    print("Manifest Files Found: ", len(manifest_file_list))
 
     # Get config value for detecting duplicates ------------------------------
 
-    mandatory_folder_list: list[tuple[str, str]] = []
+    # List of tuples containing game name and manifest file path
+    # list[tuple[game_name, manifest_file_path]]
+    manifest_game_list: list[tuple[str, str]] = []
 
-    for filepath in manifest_filepath_list:
+    for filepath in manifest_file_list:
         with open(filepath, "r") as manifest_file:
             while True:
-                
                 line = manifest_file.readline().rstrip()
-
                 config_entry = line.split(":")
+
                 if "MandatoryAppFolderName" in config_entry[0]:
-                    mandatory_folder_list.append((config_entry[1][2:-2], filepath))
+                    manifest_game_list.append((config_entry[1][2:-2], filepath))
                     break
     
     # Put duplicates together for later removal ------------------------------
 
-    duplicates_dict: dict[str, list[tuple[str, str]]] = {}
+    duplicate_manifests_dict: dict[str, list[tuple[str, str]]] = {}
 
-    for entry in mandatory_folder_list:
-        if duplicates_dict.get(entry[0]) == None: # If name does not exist in the dict
-            duplicates_dict[entry[0]] = [entry]
+    # entry: tuple[game_name, manifest_file_path]
+    for entry in manifest_game_list:
+        game_name = entry[0]
+
+        if duplicate_manifests_dict.get(game_name) == None: 
+            duplicate_manifests_dict[game_name] = [entry]
         else:
-            duplicates_dict[entry[0]].append(entry)
+            duplicate_manifests_dict[game_name].append(entry)
 
-    for list_entry in duplicates_dict.values():
-        print("List_Entry: ", len(list_entry))
+    manifests_dict_values = duplicate_manifests_dict.values()
 
-    # Find the most recent file in each duplicate list -----------------------
-
-    most_recent_file_list = []
-
-    for list_entry in duplicates_dict.values():
-        if len(list_entry) > 1: # We know there are duplicates
+    # Print duplicates -------------------------------------------------------
             
-            most_recent_file_index = -1
-            most_recent_time = -1
+    print_line_separator()
 
-            for i, entry in enumerate(list_entry):
+    for duplicate_manifests_list in manifests_dict_values:
+        if len(duplicate_manifests_list) > 1:
+            game_name = duplicate_manifests_list[0][0]
+            print(f"Duplicate Manifests ({game_name}): {len(duplicate_manifests_list)}")
 
-                file_modified_time = os.stat(list_entry[i][1]).st_mtime_ns
+    print_line_separator()
 
-                if file_modified_time > most_recent_time:
-                    most_recent_time = file_modified_time
-                    most_recent_file_index = i
+    # Find the most recent duplicate manifest file for each game -------------
 
-            most_recent_file_list.append(list_entry[most_recent_file_index])
+    recent_manifest_list: list[tuple[str, str]] = []
 
-    print("Recent files")
-    for entry in most_recent_file_list:
-        print(entry[1])
+    # duplicate_manifests_list: list[tuple[game_name, manifest_file_path]]
+    for duplicate_manifests_list in manifests_dict_values:
+        if len(duplicate_manifests_list) > 1: # We know there are duplicates
+            
+            most_recent_manifest: tuple[str, str] = duplicate_manifests_list[0] 
+            most_recent_mod_time: int = os.stat(most_recent_manifest[1]).st_mtime_ns
 
-# TODO - Scrap the removal of duplicates for now to another py file.
-# Just make all duplicates linked to the same game if you have to
+            for duplicate_manifest in duplicate_manifests_list:
+                file_modified_time = os.stat(duplicate_manifest[1]).st_mtime_ns
 
+                if file_modified_time > most_recent_mod_time:
+                    most_recent_mod_time = file_modified_time
+                    most_recent_manifest = duplicate_manifest
+
+            recent_manifest_list.append(most_recent_manifest)
+
+    # Remove older duplicate manifest files ----------------------------------
+
+    option: str = input("Remove old duplicate manifest files? (y/n): ")
     
+    if str.upper(option[0]) == 'Y':
+        
+        for recent_manifest in recent_manifest_list:
+            duplicate_manifest_list = duplicate_manifests_dict.get(recent_manifest[0])
+            
+            for duplicate_manifest in duplicate_manifest_list:
+                if duplicate_manifest != recent_manifest:
+                    print(f"Removing Manifest ({duplicate_manifest[0]}) at {duplicate_manifest[1]}")
+                    os.remove(duplicate_manifest[1])
 
+    # Relink game folders to most recent manifest files ----------------------
+            
+    option: str = input("Relink game folders to manifest files? (y/n): ")
 
-
-
-
-
-
-
-
+    if str.upper(option[0]) == 'Y':
+            
+            ...
+            # TODO - finish this up
 
 
 if __name__ == "__main__":
