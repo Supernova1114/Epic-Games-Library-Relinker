@@ -5,10 +5,7 @@ Used to relink games to the Epic Games Store Launcher.
 - The `backup` and `restore` functions for launcher manifest files are functional.
 - The `move game` and `relink game` function are a WIP.
 
-## Goal:
-- Make a system that allows for the relinking of games to the Epic Games Store Launcher.
-
-## Issue:
+## Reason for Project:
 - When a game is moved to another drive, launcher cannot locate the game.
 - When game is updated on another PC, launcher either cannot find game or tries to update game again.
 - Launcher does not have the option to add games to library from a storage drive.
