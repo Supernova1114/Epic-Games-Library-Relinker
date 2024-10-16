@@ -15,11 +15,11 @@ Used to relink games to the Epic Games Store Launcher.
 - The current way in which the Epic Games Launcher works is that a manifest file for a game
 exists within a program data directory for the launcher. This file is of type `.item`
 - This manifest file is a json dictionary which specifies the install location of the game,
-version of the game, where game files and updates
-should be downloaded from, etc.
-- This manifest file is originally created when a game is downloaded and can be updated by the launcher
+version of the game, where game files and updates should be downloaded from, etc.
+- The `.item` manifest also references a byte encoded `.manifest` file within the `.egstore/` folder for a game.
+- These manifest files are originally created when a game is downloaded and can be updated by the launcher
 for game updates, etc. 
-- This manifest file resides in C:\ProgramData\Epic\EpicGamesLauncher\Data\Manifests by default.
+- The `.item` manifest file resides in C:\ProgramData\Epic\EpicGamesLauncher\Data\Manifests by default.
 - The issue with the file residing in this location, is that the file specifies the version of the game.
 If the game were to be updated by a secondary launcher, the secondary launcher would have an updated manifest that
 contains the updated versioning of the game. However, the first launcher will have the outdated manifest file.
@@ -49,14 +49,14 @@ in which the user can choose to move a game to. Or the user can create a new par
 
 ## How can WE fix this?
 - We cannot physically change what the launcher does.
-- However, we can help the launcher discovering games and relink manifest files to the launcher. This will require a custom written program.
+- However, we can help the launcher discover games. This will require a custom written program.
 - The program will have the option to `backup` the game `.item` manifest files to a common directory such as `manifest_backups/` within a common games folder. (Or put these in the `.egstore/` folder for each game).
 - The program will have the option to `restore` the `.item` manifest files to the program data directory of an Epic Games Launcher. The launcher will then be able to locate these games, and will have a reference to the proper version specification of the game.
 - The program will have the option to `move` a game. The program will move the game install, and then update the location reference within the `.item` manifest associated with the game. The launcher will now be able to locate the game.
 - The program will have the option to `relink` games. This will fix the broken file location references within manifest files of already existing games.
 
 ## Notes:
-- It does not seem feasable to request a manifest for each game from the Epic servers programmatically.
+- It does not seem feasable to request a manifest file for each game from the Epic Games servers programmatically.
 So if there is a name and hash mismatch of the manifest file or a non-existant manifest file prior to the
 use of the Epic-Games-Relinker program, the user will need to follow the manual workaround provided
 by Epic Games. This will cause a new .egstore/ to be created for the game and a new `.item` manifest to be created.
