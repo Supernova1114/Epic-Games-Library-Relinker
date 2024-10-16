@@ -13,28 +13,31 @@ def assert_path_exists(path: str) -> None:
 
 def main():
 
-    # Get epic games store manifests path ------------------------------------
+    print("dont run")
+    sys.exit(0)
+
+    # Get Epic Games store manifests path ------------------------------------
    
-    manifests_path: str = ""
+    launcher_manifests_path: str = ""
 
     print("Default Manifests Path: ", DEFAULT_MANIFESTS_PATH)
 
     option: str = input("Use default manifests path? (y/n): ")
-    if str.upper(option[0]) == 'N':
-        manifests_path = input("Please input a valid path: ")
+    if str.upper(option[0]) == 'Y':
+        launcher_manifests_path = DEFAULT_MANIFESTS_PATH
     else:
-        manifests_path = DEFAULT_MANIFESTS_PATH
+        launcher_manifests_path = input("Please input a valid path: ")
 
-    assert_path_exists(manifests_path)
+    assert_path_exists(launcher_manifests_path)
 
     # Get game data path ----------------------------------------------------
     
     # game_data_path: str = input("Please enter parent folder path containing all games: ")
     # assert_path_exists(game_data_path)
-    # TODO - find default path for games
 
-    # TODO - TEMP REMOVE LINE
-    game_data_path = "E:\\Program Files\\Epic Games"
+    # TODO - TEMP REMOVE LINES
+    game_data_path = "F:\\Program Files\\Epic Games"
+    assert_path_exists(game_data_path)
 
     # Get list of game folder paths ------------------------------------------
 
@@ -45,16 +48,20 @@ def main():
 
     # Get list of manifest file paths ----------------------------------------
 
-    manifest_file_list: list[str] = []
+    launcher_manifest_file_list: list[str] = []
+    
+    manifest_file_type = ".item"
 
-    for entry in os.scandir(manifests_path):
-        if entry.is_file():
-            manifest_file_list.append(entry.path)
+    for entry in os.scandir(launcher_manifests_path):
+        if entry.is_file() and manifest_file_type in entry.name:
+            launcher_manifest_file_list.append(entry.path)
 
     # Print results ----------------------------------------------------------
 
     print("Games Found: ", len(game_path_list))
-    print("Manifest Files Found: ", len(manifest_file_list))
+    print("Manifest Files Found: ", len(launcher_manifest_file_list))
+
+    exit(0)
 
     # Get config value for detecting duplicates ------------------------------
 
@@ -62,7 +69,7 @@ def main():
     # list[tuple[game_name, manifest_file_path]]
     manifest_game_list: list[tuple[str, str]] = []
 
-    for filepath in manifest_file_list:
+    for filepath in launcher_manifest_file_list:
         with open(filepath, "r") as manifest_file:
             while True:
                 line = manifest_file.readline().rstrip()
@@ -118,6 +125,9 @@ def main():
 
             recent_manifest_list.append(most_recent_manifest)
 
+
+    # TODO scan for InstallationGuid config entry/manifest name in both program data and game folder.
+
     # Remove older duplicate manifest files ----------------------------------
 
     option: str = input("Remove old duplicate manifest files? (y/n): ")
@@ -140,6 +150,21 @@ def main():
             
             ...
             # TODO - finish this up
+            # Go through each manifest file, find the game folder path
+            # If the actual game folder path is different than the one in the manifest file
+            # Then update the manifest file with the new game folder path:
+            #   - Find the line containing the game folder path
+            #   - Replace the line with the new game folder path
+
+
+            # Some new notes
+            # - Will not be able to directly download manifest file.
+            # - User will have to manually begin installation in order for the store to create the file
+            # - Once the file is created, the user must cancel the installation, then run this script.
+            # - This script will update the manifest file name to match the guid of the manifest in the game folder.
+            # - It will also update the game folder paths in the manifest file to match the actual game folder path, and guid.
+            # - The manifest file will be moved to the non pending folder, right after stopping the install using this script.
+            
 
 
 if __name__ == "__main__":
