@@ -2,8 +2,8 @@
 Used to relink games to the Epic Games Store Launcher.
 
 ## Project Status:
-- Most of the functionality is not ready yet. (WIP)
-- Backup and restore functions for launcher manifest files are working. You can find these under `src/`
+- The `backup` and `restore` functions for launcher manifest files are functional.
+- Other `move game` and `relink game` function are being developed.
 
 ## Goal:
 - Make a system that allows for the relinking of games to the Epic Games Store Launcher.
@@ -50,47 +50,16 @@ folder, rather than relink every individual game.
 - The launcher needs a way to move games, rather than doing this manually and relinking the games. The launcher would have a list of parent game folders
 in which the user can choose to move a game to. Or the user can create a new parent game folder, which would then show up in this list.
 
-## How can I fix this?
+## How can we fix this?
 - We cannot physically change what the launcher does.
-- However, we can help the launcher with discovering games.
-- A custom program will need to be written.
-- This program will have the option to backup the game `.item` manifest files to a common directory such as `manifest_backups/` within a common games folder. (Or put these in the `.egstore/` folder for each game).
-- The program will have the option to restore these files in the program data directory of an Epic Games Launcher. The launcher will then be able to locate these games, and will have a reference to the proper version specification of the game.
-- The program will have the option to move a game. The program will move the game install, and then update the `.item` manifests associated with the game to have the correct folder locations of the game. The launcher will now be able to locate the game.
-The program will need to backup manifests, update the manifests, and then restore the manifests. The `manifest_backups/` folder as well as the launcher will now have the updated manifests.
-- The program will have a relink games option. This will fix the broken file location references within manifest files of already existing games.
+- However, we can help the launcher discovering games and relink manifest files to the launcher. This will require a custom written program.
+- The program will have the option to `backup` the game `.item` manifest files to a common directory such as `manifest_backups/` within a common games folder. (Or put these in the `.egstore/` folder for each game).
+- The program will have the option to `restore` the `.item` manifest files to the program data directory of an Epic Games Launcher. The launcher will then be able to locate these games, and will have a reference to the proper version specification of the game.
+- The program will have the option to `move` a game. The program will move the game install, and then update the location reference within the `.item` manifest associated with the game. The launcher will now be able to locate the game.
+- The program will have the option to `relink` games. This will fix the broken file location references within manifest files of already existing games.
 
 ## Notes:
 - It does not seem feasable to request a manifest for each game from the Epic servers programmatically.
 So if there is a name and hash mismatch of the manifest file or a non-existant manifest file prior to the
 use of the Epic-Games-Relinker program, the user will need to follow the manual workaround provided
-by Epic.
-
-## Design Plan:
-- TODO - REREAD THIS.
-- User will be able to specify a path to the Epic Launcher as well as a path to 
-their currently installed games folder.
-- User will use the "backup" function which copies currently linked launcher manifests 
-to a "manifest_backup" folder which will reside on the same folder level as the 
-root game folder. User will want to do this when they plan to use any games with 
-another PC / Epic Launcher.
-- When user is at an alternate PC, they use the "restore" function which copies
-the manifests residing in the "manifest_backup" folder to the Epic Launcher manifest location.
-If a manifest with the same hash name already exists, the user will need to choose whether or not
-to proceed with an overwrite. (As the overwritten file may be some other game installation manifest).
-This will most likely be extremely rare as the file names are hashes of some sort.
-- Now that the alternate PC launcher has an up to date manifest file for the game, the launcher
-will now be able to properly locate the game, as well as update the game if necessary.
-- If the user decides that they want to move a game to a different folder location, they can use
-the "move-installation" function. This function takes in a game name and a destination location.
-The function will then move the game and the associated manifest.
-- If the user wants to manually move the game, they can do so by copying the game to the new location,
-and using the "relink-games" function. This function checks within the games folder. It will
-check against the current installation location of the game, and the installation location
-specified within the game's manifest file. It will then update the specified location value
-if necessary.
-- Once an installation is moved. The user can use the "restore" function to move the updated
-manifest files into the Epic Launcher manifest directory, where the launcher will be able to then
-use the files to lookup the locations of the games.
-- The "manifest_backup" folder will have a file to keep track of information such as
-the "last_backup_time" just for convenience.
+by Epic Games. This will cause a new .egstore/ to be created for the game and a new `.item` manifest to be created.
