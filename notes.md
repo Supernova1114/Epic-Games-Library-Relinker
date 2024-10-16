@@ -7,7 +7,7 @@
 - When a game is moved to another drive, Epic Launcher cannot find game.
 - When game is updated on another PC, Epic Launcher cannot find game.
 - Launcher does not have the ability to add games to known library from a drive.
-- Official suggestions by Epic Games are workarounds.
+- Official suggestions by Epic Games are [workarounds](https://www.epicgames.com/help/en-US/c-Category_EpicGamesStore/c-EpicGamesStore_LauncherSupport/can-the-epic-games-launcher-detect-previously-installed-games-a000084800). 
 - The current way in which the Epic Games Launcher works is that on install,
 a manifest file for the game will download. This manifest file is a json dictionary in
 which specifies the install location, version of the game, where game files and updates
