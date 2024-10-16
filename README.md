@@ -3,7 +3,7 @@ Used to relink games to the Epic Games Store Launcher.
 
 ## Project Status:
 - The `backup` and `restore` functions for launcher manifest files are functional.
-- Other `move game` and `relink game` function are being developed.
+- The `move game` and `relink game` function are a WIP.
 
 ## Goal:
 - Make a system that allows for the relinking of games to the Epic Games Store Launcher.
