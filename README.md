@@ -47,7 +47,7 @@ folder, rather than relink every individual game.
 - The launcher needs a way to move games, rather than doing this manually and relinking the games. The launcher would have a list of parent game folders
 in which the user can choose to move a game to. Or the user can create a new parent game folder, which would then show up in this list.
 
-## How can we fix this?
+## How can WE fix this?
 - We cannot physically change what the launcher does.
 - However, we can help the launcher discovering games and relink manifest files to the launcher. This will require a custom written program.
 - The program will have the option to `backup` the game `.item` manifest files to a common directory such as `manifest_backups/` within a common games folder. (Or put these in the `.egstore/` folder for each game).
