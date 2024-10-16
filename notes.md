@@ -1,4 +1,9 @@
 # Epic Games Relinker Project
+Used to relink games to the Epic Games Store Launcher.
+
+## Project Status:
+- Most of the functionality is not ready yet. (WIP)
+- Backup and restore functions for launcher manifest files are working. You can find these under `src/`
 
 ## Goal:
 - Make a system that allows for the relinking of games to the Epic Games Store Launcher.
