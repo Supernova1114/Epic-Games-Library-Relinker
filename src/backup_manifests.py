@@ -1,6 +1,7 @@
 import os
 import sys
 import shutil
+from dataclasses import dataclass
 
 DEFAULT_MANIFESTS_PATH: str = "C:\\ProgramData\\Epic\\EpicGamesLauncher\\Data\\Manifests"
 MANIFEST_BACKUP_FOLDER_NAME: str = "_MANIFEST_BACKUPS"
@@ -16,6 +17,83 @@ def assert_path_exists(path: str) -> None:
 def yes_no_prompt(prompt: str) -> bool:
     option: str = input(f"PROMPT: {prompt} (y/n): ")
     return len(option) != 0 and str.upper(option[0]) == 'Y'
+
+def get_launcher_manifest_files(launcher_manifests_path: str) -> list[os.DirEntry]:
+    
+    launcher_manifest_file_list: list[os.DirEntry] = []
+    launcher_manifest_file_type = ".item"
+
+    for lm_entry in os.scandir(launcher_manifests_path):
+        if lm_entry.is_file() and launcher_manifest_file_type in lm_entry.name:
+            launcher_manifest_file_list.append(lm_entry)
+    
+    return launcher_manifest_file_list
+
+
+
+
+
+@dataclass
+class GameData:
+    
+    game_name: str
+    game_folder: str
+    manifest_folder: str
+    manifest_file_list: list[str]
+
+    @staticmethod
+    def is_valid_game_folder(self, entry: os.DirEntry) -> bool:
+        return (
+            entry.is_dir() 
+            and entry.name != MANIFEST_BACKUP_FOLDER_NAME
+            and os.path.exists(os.path.join(entry.path, ".egstore"))
+        )
+
+    @staticmethod
+    def is_valid_manifest_file(self, entry: os.DirEntry) -> bool:
+        return (
+            entry.is_file() 
+            and ".manifest" in entry.name
+        )
+            
+
+def get_game_data_list(game_data_path: str):
+    
+    game_data_list: list[GameData] = []
+    
+    for game_entry in os.scandir(game_data_path):
+        
+        game_name: str = None
+        game_folder: str = None
+        manifest_folder: str = None
+        manifest_file_list: list[str] = []
+
+        if GameData.is_valid_game_folder(game_entry):
+            game_name = game_entry.name
+            game_folder = game_entry.path
+            manifest_folder = os.path.join(game_entry.path, ".egstore")
+            print(f"INFO: Adding \"{game_entry.name}\"")
+        else:
+            print(f"WARNING!: Skipping \"{game_name}/\" as it is not a valid game folder.")
+            continue
+
+        for manifest_entry in os.scandir(manifest_folder):
+            if GameData.is_valid_manifest_file(manifest_entry):
+                manifest_file_list.append(manifest_entry.path)
+        
+        if len(manifest_file_list) == 0:
+            print(
+                f"WARNING!: Skipping \"{game_name}/.egstore/\" as it is missing a manifest file.
+                (May be an incomplete installation)."
+            )
+            continue
+
+        game_data_list.append(GameData(game_name, game_folder, manifest_folder, manifest_file_list))
+
+    # END for
+
+    return game_data_list
+
 
 def main():
 
@@ -43,50 +121,13 @@ def main():
 
     # Get list of launcher manifest file paths -------------------------------
 
-    launcher_manifest_file_list: list[os.DirEntry] = []
-    
-    launcher_manifest_file_type = ".item"
-
-    for lm_entry in os.scandir(launcher_manifests_path):
-        if lm_entry.is_file() and launcher_manifest_file_type in lm_entry.name:
-            launcher_manifest_file_list.append(lm_entry)
+    launcher_manifest_file_list: list[os.DirEntry] = get_launcher_manifest_files(launcher_manifests_path)
 
     # Get game folder list and game manifest list ----------------------------
 
-    game_folder_list: list[os.DirEntry] = []
+    game_data_list: list[GameData] = get_game_data_list(game_data_path)
 
-    game_manifest_file_list: list[os.DirEntry] = []
-    game_manifest_file_type = ".manifest"
-
-    print_line_separator()
-
-    for game_folder_entry in os.scandir(game_data_path):
-
-        if not game_folder_entry.is_dir() or game_folder_entry.name == MANIFEST_BACKUP_FOLDER_NAME:
-            continue
-
-        game_manifest_folder = os.path.join(game_folder_entry.path, ".egstore")
-
-        if os.path.exists(game_manifest_folder) == False:
-            print(f"WARNING!: Skipping \"{game_folder_entry.name}/\" as it does not contain \".egstore/\"")
-            continue
-        
-        found_manifest = False
-
-        for gm_entry in os.scandir(game_manifest_folder):
-            if (gm_entry.is_file() and game_manifest_file_type in gm_entry.name):
-                game_manifest_file_list.append(gm_entry)
-                found_manifest = True
-
-        if found_manifest:
-            print(f"INFO: Adding \"{game_folder_entry.name}\"")
-            game_folder_list.append(game_folder_entry)
-        else:
-            print(f"WARNING!: Skipping \"{game_folder_entry.name}/.egstore/\" as it is missing a game manifest file. (May be an incomplete installation).")
-
-    print_line_separator()
-
-    if len(game_folder_list) == 0:
+    if len(game_data_list) == 0:
         print(f"ERROR!: No games found! Aborting...")
         sys.exit(1)
 
@@ -103,6 +144,10 @@ def main():
     if os.path.exists(manifest_backup_folder) == False:
         print(f"INFO: Creating folder: {manifest_backup_folder}")
         os.mkdir(manifest_backup_folder)
+
+    # TODO - finish this up. 
+    # May want to add a directory class that contains file name and file path instead of using strings within the
+    # Game Data class.
 
     for gm_file in game_manifest_file_list:
         gm_name, _ = os.path.splitext(gm_file.name) # Game manifest
