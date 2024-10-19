@@ -145,13 +145,14 @@ def assert_manifest_is_supported(format_version: int):
 
 def update_manifest_location_references(launcher_manifest: FileDirectory, game_folder_path: str) -> None:
 
+    # TODO - Add check if relinking is actually necessary or not.
+
     # Open file as read/write
     with open(launcher_manifest.path, 'r+') as file:
         data = json.load(file)
 
         # Check version
         assert_manifest_is_supported(data["FormatVersion"])
-
 
         manifest_location = os.path.join(game_folder_path, GAME_MANIFEST_FOLDER_NAME)
         staging_location = os.path.join(manifest_location, STAGING_FOLDER_NAME)
@@ -199,7 +200,7 @@ def restore_manifests(manifest_backup_folder: str, launcher_manifest_folder: str
     
     print_line_separator()
 
-def backup_manifests(launcher_manifest_folder: str, manifest_backup_folder: str, game_data_list: list[GameData]) -> None:
+def backup_manifests(manifest_backup_folder: str, launcher_manifest_folder: str, game_data_list: list[GameData]) -> None:
     
     if yes_no_prompt(f"Launcher manifests will backup to \"{manifest_backup_folder}\". Continue?") == False:
         print("INFO: Aborting...")
@@ -224,6 +225,8 @@ def move_game_installation(manifest_backup_folder: str, game_data_list: list[Gam
     # Print out menu for game selection
     for index, game_data in enumerate(game_data_list):
         print(f"{index + 1}. {game_data.game_folder.name}")
+
+    print()
 
     selection_raw = input("Select games to move (Comma separated, EX: 1,2,3): ")
     selection_list = selection_raw.strip().split(",")
@@ -298,6 +301,31 @@ def move_game_installation(manifest_backup_folder: str, game_data_list: list[Gam
 
     print_line_separator()
 
+    # TODO - Add suggestion to restore updated launcher manifests.
+
+def relink_manifests(manifest_backup_folder: str, game_data_list: list[GameData]) -> None:
+
+    prompt: str = f"Launcher manifests within \"{manifest_backup_folder}\""
+    prompt += " will be relinked to their associated games.\nContinue?"
+    
+    if yes_no_prompt(prompt) == False:
+        print("INFO: Aborting...")
+        sys.exit(0)
+
+    launcher_manifest_file_list: list[FileDirectory] = get_launcher_manifest_files(manifest_backup_folder)
+
+    for game_data in game_data_list:
+        for game_manifest in game_data.manifest_file_list:
+            matching_launcher_manifest: FileDirectory = get_matching_launcher_manifest(game_manifest, launcher_manifest_file_list)
+
+            if matching_launcher_manifest is None:
+                print(f"WARNING!: Launcher manifest for \"{game_data.game_folder.name}\" matching {game_manifest.name} does not exist.")
+                continue
+
+            # Update launcher manifest to reference correct game path.
+            print(f"INFO: Relinking \"{game_data.game_folder.name}\"")
+            update_manifest_location_references(matching_launcher_manifest, game_data.game_folder.path)
+
 def main():
 
     # Get Epic Games store manifests path ------------------------------------
@@ -331,7 +359,13 @@ def main():
         print(f"ERROR!: No games found! Aborting...")
         sys.exit(1)
 
-    print("Main Menu:\n1. Backup Manifests\n2. Restore Manifests\n3. Move Game Installation\n0. Exit\n")
+    menu_prompt: str = "Main Menu:\n"
+    menu_prompt += "1. Backup Manifests\n2. Restore Manifests\n"
+    menu_prompt += "3. Move Game Installation\n4. Relink Manifests\n"
+    menu_prompt += "0. Exit"
+
+    print(menu_prompt)
+
     option: int = int(input("Enter an option: "))
 
     print_line_separator()
@@ -343,11 +377,13 @@ def main():
             print("INFO: Exiting...")
             sys.exit(0)
         case 1:
-            backup_manifests(launcher_manifest_folder, manifest_backup_folder, game_data_list)
+            backup_manifests(manifest_backup_folder, launcher_manifest_folder, game_data_list)
         case 2:
             restore_manifests(manifest_backup_folder, launcher_manifest_folder)
         case 3:
             move_game_installation(manifest_backup_folder, game_data_list)
+        case 4:
+            relink_manifests(manifest_backup_folder, game_data_list)
         case _:
             print("WARNING: Invalid option!")
 
