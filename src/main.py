@@ -346,7 +346,7 @@ def main():
 
     # Get game data path ----------------------------------------------------
     
-    game_data_path: str = input("Please enter games folder path: ")
+    game_data_path: str = input("Please enter your games folder path: ")
     assert_path_exists(game_data_path)
 
     # Get game folder list and game manifest list ----------------------------
