@@ -1,58 +1,72 @@
-# Epic Games Relinker Project
-Used to relink games to the Epic Games Store Launcher.
+# Epic Games Relinker
+Used to relink and manage games from the Epic Games Launcher.
 
-## Reason for Project:
-- When a game is moved to another drive, launcher cannot locate the game.
-- When game is updated on another PC, launcher either cannot find game or tries to update game again.
-- Launcher does not have the option to add games to library from a storage drive.
-- Official suggestions by Epic Games are [workarounds](https://www.epicgames.com/help/en-US/c-Category_EpicGamesStore/c-EpicGamesStore_LauncherSupport/can-the-epic-games-launcher-detect-previously-installed-games-a000084800). 
+## Reason for the existence of this project:
+- The launcher does not have the option to add preinstalled games to your library from a storage drive.
+- The launcher does not have an option to move games. Moving a game manually will cause the launcher to be unable to locate the game.
+- When a game is updated on another PC, the launcher either cannot locate the game or tries to update the game again.
+- Official suggestions by Epic Games are workarounds.
+  - [How to detect preinstalled game.](https://www.epicgames.com/help/en-US/c-Category_EpicGamesStore/c-EpicGamesStore_LauncherSupport/can-the-epic-games-launcher-detect-previously-installed-games-a000084800).
+  - [How to move a game.](https://www.epicgames.com/help/en-US/c-Category_EpicGamesStore/c-EpicGamesStore_LauncherSupport/how-to-move-an-installed-game-from-the-epic-games-launcher-to-another-directory-on-your-computer-a000084687?sessionInvalidated=true)
+
+## Features:
+- Ability to relink preinstalled games to the launcher.
+- Ability to move games to another folder location and stay linked to the launcher.
+- Ability to backup game manifest files so that games can be brought over to another PC.
+- Ability to restore game manifest files to the launcher.
+
+## Requirements:
+- Python 3
+
+## How to use:
+
+### How to relink games:
+1. Run the `Backup Manifests` option.
+2. Run the `Relink Manifests` option.
+3. Run the `Restore Manifests` option.
+4. The launcher should now recognize your preinstalled games.
+
+Note: The `Relink Manifests` option will not work if the launcher does not have a manifest file already associated with the game. If you do not have access to the original launcher you installed the game from, you will need to follow the workaround provided by Epic Games in order to force the launcher to create a new manifest file.
+
+### How to move games:
+1. Run the `Backup Manifests` option.
+2. Run the `Move Game Installation` option.
+3. Run the `Restore Manifests` option.
+4. The launcher will be able to recognize the games you have moved.
+
+Note: Moving games manually through the file explorer will necessitate the relinking process in order for them to be rediscovered by the launcher.
+
+### How to move games between PCs:
+1. Run the `Backup Manifests` option.
+2. Move your storage drive / games folder to another PC.
+3. Run the `Restore Manifests` option.
 
 ## Research Notes:
-- The current way in which the Epic Games Launcher works is that a manifest file for a game
-exists within a program data directory for the launcher. This file is of type `.item`
-- This manifest file is a json dictionary which specifies the install location of the game,
+- The current way in which the Epic Games Launcher works is that manifest files for games
+exists within the program data directory for the launcher.
+- These `.item` manifest files resides in `C:\ProgramData\Epic\EpicGamesLauncher\Data\Manifests` by default.
+- The `.item` manifest file is a json dictionary which specifies the install location of the game,
 version of the game, where game files and updates should be downloaded from, etc.
-- The `.item` manifest also references a byte encoded `.manifest` file within the `.egstore/` folder for a game.
-- These manifest files are originally created when a game is downloaded and can be updated by the launcher
-for game updates, etc. 
-- The `.item` manifest file resides in C:\ProgramData\Epic\EpicGamesLauncher\Data\Manifests by default.
-- The issue with the file residing in this location, is that the file specifies the version of the game.
-If the game were to be updated by a secondary launcher, the secondary launcher would have an updated manifest that
-contains the updated versioning of the game. However, the first launcher will have the outdated manifest file.
-Therefore when the storage drive containing the games is reconnected to the first launcher, the launcher will
-think that the games are out of date, which they are not.
-- Another issue is that if a game were to be moved to a different file location, the manifest within the launcher
-would not be updated as well. The manifest would contain the old location of the game data.
-- Additionally, the launcher likes to regularly change the name of a game's manifest during updates, which as a consequence
-will cause other launchers to lose track of the game's location as the other launchers will have an old manifest.
+- Each `.item` manifest references an encoded `.manifest` file within the `.egstore/` folder for each game. Ex: `<games_folder>/<game_name>/.egstore/<file_name>.manifest`.
+- The `.item` and `.manifest` files are originally created when a game is installed and will be updated by the launcher during game updates. 
+- An issue arises because of the location of the `.item` manifest files. The file location is associated with the specific installation of the launcher, rather than with where a game's installation actually resides.
+- If a game installation were to reside on an external storage drive, and the drive were to be moved to a secondary PC, the Epic Games launcher installed on that secondary PC would have no idea the games exist.
+- This makes sense as the games residing on this drive have never been linked to this secondary launcher.
+- However, the Epic Games launcher does not have a feature to link preinstalled games.
+- Once each game is manually and individually linked via the method suggested by Epic Games, the secondary launcher will have an understanding of the location and version of the games.
+- However, if we move the storage drive back to the primary PC, the launcher here will have an outdated `.item` manifest file associated with the game.
+- Two different issues will arise:
+1. If the secondary PC's launcher had updated the game. The primary PC launcher will still think the game is out of date, and attempt an update.
+2. If the secondary PC's launcher had changed the name of the `.manifest` file associated with the game due to a game update, the primary PC will not be able to locate the game, as the primary launcher's `.item` manifest file is now dissociated with the `.manifest` file by name.
+- As another topic, the Epic Games launcher does not feature a method to move a game installation to another folder.
+- If a game were to be manually moved to another folder, the launcher would still have the original `.item` manifest file for the game, which specifies the original location for the game.
+- Since the game no longer exists within the original folder location, the launcher will no longer list the game as installed.
+- This is understandable.
+- However, there is no user-friendly way to reassociate the game with the launcher, and a user will have to follow the workaround provided by Epic Games in order to manually and individually reassociate every game that has been moved.
 
 ## How can Epic Games fix this?
-- The game manifests that exist in the program data folder of each launcher does not need to reside in that location.
-- A game manifest should reside in the .egstore/ of the specified game.
-- The launcher should force a common parent folder for the installation of games. Such as "C:\...\Epic Games\".
-Do not let the user put the game into C:\Users\Cameron\Documents when choosing a game install location for example.
-This will let the launcher reference parent folders on separate storage drives containing many games, instead of having
-to keep track of every individual game.
-- The launcher will have a file within its program data directory, which specifies the locations of the parent folders containing multiple games.
-- The user can either manually create a games folder and link this to the launcher, or the launcher can create this folder.
-- When the launcher starts up, it will be able to look through the parent folders to see which games are installed. The launcher can look inside of the
-manifests within the .egstore/ directory of each game as to find what state the game is in / find info relating to the game.
-- The launcher needs a way to link a games folder with preinstalled games to the launcher.
-- As games reside within a common games folder on each storage drive, if this common folder were to be moved, the user would just need to relink the parent
-folder, rather than relink every individual game.
-- The launcher needs a way to move games, rather than doing this manually and relinking the games. The launcher would have a list of parent game folders
-in which the user can choose to move a game to. Or the user can create a new parent game folder, which would then show up in this list.
-
-## How can WE fix this?
-- We cannot physically change what the launcher does.
-- However, we can help the launcher discover games. This will require a custom written program.
-- The program will have the option to `backup` the game `.item` manifest files to a common directory such as `manifest_backups/` within a common games folder. (Or put these in the `.egstore/` folder for each game).
-- The program will have the option to `restore` the `.item` manifest files to the program data directory of an Epic Games Launcher. The launcher will then be able to locate these games, and will have a reference to the proper version specification of the game.
-- The program will have the option to `move` a game. The program will move the game install, and then update the location reference within the `.item` manifest associated with the game. The launcher will now be able to locate the game.
-- The program will have the option to `relink` games. This will fix the broken file location references within manifest files of already existing games.
-
-## Notes:
-- It does not seem feasable to request a manifest file for each game from the Epic Games servers programmatically.
-So if there is a name and hash mismatch of the manifest file or a non-existant manifest file prior to the
-use of the Epic-Games-Relinker program, the user will need to follow the manual workaround provided
-by Epic Games. This will cause a new .egstore/ to be created for the game and a new `.item` manifest to be created.
+- The `.item` manifests that exist within the program data folder of the launcher should reside in the `.egstore/` folder for each game.
+- The launcher should reference parent folders containing multiple games, rather than referencing each individual game. Ex: C:\Games\[Game_1\, Game_2\, Game_3\] where "Games" is the parent folder.
+- The launcher should have a file within its program data directory, which specifies the locations of parent folders that have been linked by the user or created through the launcher.
+- When installing a game, the user could pick from their existing parent folders, or choose to create another parent folder.
+- When the launcher starts up, it would search through the parent folders to see which games are installed. The launcher would read the `.item` and `.manifest` files within the `.egstore/` folder for each game in order to understand the state of the game, as well as any information relating to the installation.
