@@ -23,6 +23,7 @@ Used to relink and manage games from the Epic Games Launcher.
 - Has only been tested on Windows 10.
 
 ## How to use:
+Note: Make sure to close out of the Epic Games Launcher prior to using this program.
 
 ### How to relink games:
 1. Run the `Backup Manifests` option.
