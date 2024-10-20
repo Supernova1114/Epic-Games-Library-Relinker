@@ -228,19 +228,26 @@ def move_game_installation(manifest_backup_folder: str, game_data_list: list[Gam
 
     print()
 
-    selection_raw = input("Select games to move (Comma separated, EX: 1,2,3): ")
-    selection_list = selection_raw.strip().split(",")
-
+    selection_raw = input("Select games to move (\"all\" or comma separated, Ex: \"1,2,3\"): ")
     selected_games_list: list[GameData] = []
+    
+    if selection_raw.upper() == "ALL":
+        selected_games_list = game_data_list
+    else:
+        selection_list = selection_raw.strip().split(",")
 
-    for selection_str in selection_list:
-        selection_index: int = int(selection_str) - 1
+        for selection_str in selection_list:
+            selection_index: int = int(selection_str) - 1
 
-        if selection_index < 0 or selection_index >= len(game_data_list):
-            print(f"ERROR!: Invalid option \"{selection_index + 1}\"")
-            sys.exit(1)
+            if selection_index < 0 or selection_index >= len(game_data_list):
+                print(f"ERROR!: Invalid option \"{selection_index + 1}\"")
+                sys.exit(1)
 
-        selected_games_list.append(game_data_list[selection_index])
+            selected_games_list.append(game_data_list[selection_index])
+        
+        # END for
+
+    # END else
 
     print_line_separator()
 
