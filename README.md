@@ -1,5 +1,6 @@
 # Epic Games Relinker
 Used to relink and manage games from the Epic Games Launcher.
+[Video About Project](https://youtu.be/_mA0eiudK2g?si=I86LxzpQH4R1pq1L)
 
 ## Reason for the existence of this project:
 - The launcher does not have the option to add preinstalled games to your library from a storage drive.
