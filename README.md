@@ -18,6 +18,9 @@ Used to relink and manage games from the Epic Games Launcher.
 ## Requirements:
 - Python 3
 
+## Supported Platforms:
+- Has only been tested on Windows 10.
+
 ## How to use:
 
 ### How to relink games:
