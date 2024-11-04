@@ -2,6 +2,7 @@ from dataclasses import dataclass
 import os
 import sys
 
+
 @dataclass
 class FileDirectory:
     name: str # Name of file or folder.
@@ -19,10 +20,10 @@ class FileManagement:
     @staticmethod
     def assert_path_exists(path: str, hint: str = "") -> None:
         if os.path.exists(path) == False:
-            print(f"ERROR!: Path does not exist! \"{path}\"")
+            print(f"ERROR: Path does not exist! \"{path}\"")
 
             if len(hint) != 0:
-                print(f"ERROR!: {hint}")
+                print(f"INFO: {hint}")
 
             sys.exit(1)
 

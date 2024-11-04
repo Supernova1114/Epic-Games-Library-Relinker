@@ -6,10 +6,12 @@ from menu_cli import MenuCLI
 
 def main():
 
-    launcher_manifest_folder: str = ""
-
+    MenuCLI.print_line_separator()
     print("Welcome to Epic Games Relinker")
     print(f"INFO: Default Manifests Path: {GameDataManager.DEFAULT_MANIFESTS_PATH}")
+    MenuCLI.print_line_separator()
+    
+    launcher_manifest_folder: str = ""
 
     if MenuCLI.yes_no_prompt("Use default manifests path?"):
         launcher_manifest_folder = GameDataManager.DEFAULT_MANIFESTS_PATH
@@ -21,19 +23,23 @@ def main():
     games_folder: str = input("Please enter your games folder path: ")
     FileManagement.assert_path_exists(games_folder)
 
+    MenuCLI.print_line_separator()
+
     game_data_manager = GameDataManager(launcher_manifest_folder, games_folder)
 
     if game_data_manager.get_game_count() == 0:
-        print(f"ERROR!: No games found! Exiting...")
+        print(f"ERROR!: No games found! Aborting...")
         sys.exit(1)
 
-    menu_options = {
+    MenuCLI.print_line_separator()
+
+    menu_options = [
         "Backup Manifests",
         "Restore Manifests",
         "Move Game Installation",
         "Relink Manifests",
         "Exit"
-    }
+    ]
 
     choice = MenuCLI.numbered_prompt(header="Main Menu:", option_list=menu_options)
 
@@ -49,6 +55,7 @@ def main():
         case 5:
             print("INFO: Exiting...")
             sys.exit(0)
+
 
     print("INFO: Process Complete! Exiting...")
     sys.exit(0)

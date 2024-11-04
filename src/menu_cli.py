@@ -34,6 +34,7 @@ class MenuCLI:
                 choice = int(input(prompt))
 
                 if choice > 0 and choice <= option_count:
+                    print()
                     return choice
                 else:
                     print("\nWARNING: Invalid option!")
