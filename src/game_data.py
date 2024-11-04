@@ -197,43 +197,28 @@ class GameDataManager:
 
         MenuCLI.print_line_separator()
 
-        # TODO - create function within menu_cli.py for list input menu prompt.
+        game_name_list: list[str] = []
 
-        print("Movable Games Menu:")
+        for game_data in self._game_data_list:
+            game_name_list.append(game_data.game_folder.name)
 
-        # Print out menu for game selection
-        for index, game_data in enumerate(self._game_data_list):
-            print(f"{index + 1}. {game_data.game_folder.name}")
+        selected_options: list[int] = MenuCLI.list_prompt(
+            header="Movable Games Menu:",
+            prompt="Select games to move",
+            option_list=game_name_list
+        )
 
-        print()
+        selected_games: list[GameData] = []
 
-        selection_raw = input("Select games to move (\"all\" or comma separated, Ex: \"1,2,3\"): ")
-        selected_games_list: list[GameData] = []
-        
-        if selection_raw.upper() == "ALL":
-            selected_games_list = self._game_data_list
-        else:
-            selection_list = selection_raw.strip().split(",")
-
-            for selection_str in selection_list:
-                selection_index: int = int(selection_str) - 1
-
-                if selection_index < 0 or selection_index >= len(self._game_data_list):
-                    print(f"ERROR!: Invalid option \"{selection_index + 1}\"")
-                    sys.exit(1)
-
-                selected_games_list.append(self._game_data_list[selection_index])
-            
-            # END for
-
-        # END else
+        for option in selected_options:
+            selected_games.append(self._game_data_list[option - 1])
 
         MenuCLI.print_line_separator()
 
         # Print out what user selected
         print("Your selection:")
-        for selected_game in selected_games_list:
-            print(f"- \"{selected_game.game_folder.name}\"")
+        for game in selected_games:
+            print(f"- \"{game.game_folder.name}\"")
 
         MenuCLI.print_line_separator()    
 

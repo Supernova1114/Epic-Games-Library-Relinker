@@ -43,5 +43,49 @@ class MenuCLI:
                 print("\nWARNING: Invalid option!")
 
     @staticmethod
-    def list_prompt():
-        ...
+    def list_prompt(
+        header: str = "Menu:",
+        prompt: str = "Select from list",
+        option_list: list[str] = []
+    ) -> list[int]:
+
+        option_count = len(option_list)
+
+        if option_count == 0:
+            print("\nWARNING: Empty options list!")
+            return []
+
+        print(f"\n{header}")    
+
+        for index, option in enumerate(option_list):
+            print(f"{index + 1}. {option}")    
+        
+        while True:
+
+                raw_input = input(f"{prompt}\n(\"all\", \"none\", or list \"1,2,3\"): ")
+
+                if raw_input.upper() == "ALL":
+                    return list(range(1, option_count + 1))
+                elif raw_input.upper() == "NONE":
+                    return []
+                else:
+
+                    try:
+                        selected_options: list[int] = []
+
+                        options_raw: list[str] = raw_input.strip().split(",")
+                        
+                        for option_str in options_raw:
+                            
+                            # TODO - continue fixing and test. Should output indexing starting at 1 instead of zero.
+                            option_index: int = int(option_str) - 1
+                            
+                            if option_index >= 0 and option_index < option_count:
+                                selected_options.append(option_index)
+                        
+                        # END for
+
+                        return selected_options
+
+                    except Exception:
+                        print("\nWARNING: Invalid input!")
