@@ -273,7 +273,7 @@ class GameDataManager:
                 print(f"WARNING!: Skipping \"{selected_game.game_folder.name}\"", end='') 
                 print(f" as it is missing a manifest file within {self.MANIFEST_BACKUP_FOLDER_NAME}")
 
-        print(f"INFO: Moving games (100%): COMPLETE")
+        print(f"INFO: Moving games (100%): DONE")
 
         MenuCLI.print_line_separator()
 
