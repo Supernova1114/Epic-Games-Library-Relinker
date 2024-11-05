@@ -25,6 +25,8 @@ Used to relink and manage games from the Epic Games Launcher.
 ## How to use:
 Note: Make sure to close out of the Epic Games Launcher prior to using this program.
 
+    python3 main.py
+
 ### How to relink games:
 1. Run the `Backup Manifests` option.
 2. Run the `Relink Manifests` option.
