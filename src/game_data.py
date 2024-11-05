@@ -261,7 +261,7 @@ class GameDataManager:
                 self.update_manifest_location_references(matching_launcher_manifest, new_game_folder_path)
 
                 # Move launcher manifest to destination
-                shutil.movDonee(matching_launcher_manifest.path, destination_backup_folder)
+                shutil.move(matching_launcher_manifest.path, destination_backup_folder)
 
             if found_all_manifests == True:
                 # Move game installation
