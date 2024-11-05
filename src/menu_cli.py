@@ -60,11 +60,13 @@ class MenuCLI:
             print("\nWARNING: Empty options list!")
             return []
 
-        print(f"\n{header}")    
+        print(f"{header}")    
 
         for index, option in enumerate(option_list):
             print(f"{index + 1}. {option}")    
-        
+
+        print()
+
         while True:
 
                 raw_input = input(f"{prompt}\n(\"all\", \"none\", or list \"1,2,3\"): ")

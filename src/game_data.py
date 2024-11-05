@@ -208,14 +208,16 @@ class GameDataManager:
 
         MenuCLI.print_line_separator()
 
+        if len(selected_games_list) == 0:
+            print("INFO: No games selected. Exiting...")
+            sys.exit(0)
+
         # Print out what user selected
         print("Your selection:")
         for game in selected_games_list:
             print(f"- \"{game.game_folder.name}\"")
 
-        MenuCLI.print_line_separator()    
-
-        destination_path: str = input("Input a destination path: ")
+        destination_path: str = input("\nInput a destination path: ")
 
         if destination_path == self._games_folder:
             print("ERROR: Source and destination paths are equal!")
@@ -265,14 +267,13 @@ class GameDataManager:
 
             if found_all_manifests == True:
                 # Move game installation
-                print(f"INFO: Moving game \"{selected_game.game_folder.name}\"")
-                print(f"INFO: Progress: ({int(100 * index / selected_game_count)}%)")
+                print(f"INFO: Moving games ({int(100 * index / selected_game_count)}%): \"{selected_game.game_folder.name}\"")
                 shutil.move(selected_game.game_folder.path, destination_path)
             else:
                 print(f"WARNING!: Skipping \"{selected_game.game_folder.name}\"", end='') 
-                print(" as it is missing a manifest file within {self.MANIFEST_BACKUP_FOLDER_NAME}")
+                print(f" as it is missing a manifest file within {self.MANIFEST_BACKUP_FOLDER_NAME}")
 
-        print(f"INFO: Progress: (100%)")
+        print(f"INFO: Moving games (100%): COMPLETE")
 
         MenuCLI.print_line_separator()
 
