@@ -13,6 +13,9 @@ class GameData:
     manifest_folder: FileDirectory
     manifest_file_list: list[FileDirectory]
 
+    def __str__(self) -> str:
+        return self.game_folder.name
+
 class GameDataManager:
 
     DEFAULT_MANIFESTS_PATH: str = "C:\\ProgramData\\Epic\\EpicGamesLauncher\\Data\\Manifests"
@@ -197,27 +200,17 @@ class GameDataManager:
 
         MenuCLI.print_line_separator()
 
-        game_name_list: list[str] = []
-
-        for game_data in self._game_data_list:
-            game_name_list.append(game_data.game_folder.name)
-
-        selected_options: list[int] = MenuCLI.list_prompt(
+        selected_games_list: list[GameData] = MenuCLI.list_prompt(
             header="Movable Games Menu:",
             prompt="Select games to move",
-            option_list=game_name_list
+            option_list=self._game_data_list
         )
-
-        selected_games: list[GameData] = []
-
-        for option in selected_options:
-            selected_games.append(self._game_data_list[option - 1])
 
         MenuCLI.print_line_separator()
 
         # Print out what user selected
         print("Your selection:")
-        for game in selected_games:
+        for game in selected_games_list:
             print(f"- \"{game.game_folder.name}\"")
 
         MenuCLI.print_line_separator()    
@@ -268,17 +261,18 @@ class GameDataManager:
                 self.update_manifest_location_references(matching_launcher_manifest, new_game_folder_path)
 
                 # Move launcher manifest to destination
-                shutil.move(matching_launcher_manifest.path, destination_backup_folder)
+                shutil.movDonee(matching_launcher_manifest.path, destination_backup_folder)
 
             if found_all_manifests == True:
                 # Move game installation
-                print(f"INFO: ({int(100 * index / selected_game_count)}%) | Moving game \"{selected_game.game_folder.name}\"")
+                print(f"INFO: Moving game \"{selected_game.game_folder.name}\"")
+                print(f"INFO: Progress: ({int(100 * index / selected_game_count)}%)")
                 shutil.move(selected_game.game_folder.path, destination_path)
             else:
                 print(f"WARNING!: Skipping \"{selected_game.game_folder.name}\"", end='') 
                 print(" as it is missing a manifest file within {self.MANIFEST_BACKUP_FOLDER_NAME}")
 
-        print(f"INFO: (100%) | Done")
+        print(f"INFO: Progress: (100%)")
 
         MenuCLI.print_line_separator()
 

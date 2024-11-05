@@ -1,3 +1,4 @@
+from typing import Any
 
 class MenuCLI:
 
@@ -14,8 +15,12 @@ class MenuCLI:
     def numbered_prompt(
         header: str = "Menu:",
         prompt: str = "Enter an option: ",
-        option_list: list[str] = []
-    ) -> int:
+        option_list: list[Any] = []
+    ) -> list[Any]:
+        
+        """
+        option_list expects objects with a __str__() print function implemented.
+        """
 
         option_count = len(option_list)
 
@@ -46,7 +51,7 @@ class MenuCLI:
     def list_prompt(
         header: str = "Menu:",
         prompt: str = "Select from list",
-        option_list: list[str] = []
+        option_list: list[Any] = [],
     ) -> list[int]:
 
         option_count = len(option_list)
@@ -65,7 +70,7 @@ class MenuCLI:
                 raw_input = input(f"{prompt}\n(\"all\", \"none\", or list \"1,2,3\"): ")
 
                 if raw_input.upper() == "ALL":
-                    return list(range(1, option_count + 1))
+                    return option_list
                 elif raw_input.upper() == "NONE":
                     return []
                 else:
@@ -74,18 +79,25 @@ class MenuCLI:
                         selected_options: list[int] = []
 
                         options_raw: list[str] = raw_input.strip().split(",")
+
+                        input_valid: bool = True
                         
                         for option_str in options_raw:
                             
-                            # TODO - continue fixing and test. Should output indexing starting at 1 instead of zero.
-                            option_index: int = int(option_str) - 1
+                            option_num: int = int(option_str)
                             
-                            if option_index >= 0 and option_index < option_count:
-                                selected_options.append(option_index)
-                        
+                            if option_num >= 1 and option_num <= option_count:
+                                selected_options.append(option_list[option_num - 1])
+                            else:
+                                input_valid = False
+                                break
+                                
                         # END for
 
-                        return selected_options
+                        if input_valid:
+                            return selected_options
+                        else:
+                            print("\nWARNING: Invalid input!\n")
 
-                    except Exception:
-                        print("\nWARNING: Invalid input!")
+                    except ValueError:
+                        print("\nWARNING: Invalid input!\n")
