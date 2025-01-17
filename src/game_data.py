@@ -246,6 +246,12 @@ class GameDataManager:
 
         for index, selected_game in enumerate(selected_games_list):
 
+            # Check if a folder matching game name already exists in destination
+            if (os.path.exists(os.path.join(destination_path, selected_game.game_folder.get_name_raw()))):
+                print(f"WARNING!: Skipping \"{selected_game.game_folder.name}\"", end='') 
+                print(f" as the game folder already exists within {destination_path}")
+                continue
+
             found_all_manifests = True
 
             backed_up_launcher_manifest_list: list[FileDirectory] = self.get_launcher_manifest_files(self._manifest_backup_folder)
