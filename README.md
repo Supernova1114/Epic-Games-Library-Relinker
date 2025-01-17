@@ -1,4 +1,4 @@
-# Epic Games Relinker
+# Epic-Games-Library-Relinker
 Used to relink and manage games from the Epic Games Launcher.
 [Video About Project](https://youtu.be/_mA0eiudK2g?si=I86LxzpQH4R1pq1L)
 
